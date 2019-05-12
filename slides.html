@@ -177,7 +177,7 @@ myInstance.check(); // myProperty è presente e vale 40
 myInstance.brokenCheck(); // Questa istanza non ha myProperty
 			</pre>
 			<div>
-				Questo è un dei tipici casi in cui si esce dal contesto di esecuzione che ci si aspetta di avere (un altro caso frequente è quello dei gestori di eventi). Come è avvenuta l'uscita dal contesto di esecuzione?<br>
+				Questo è uno dei tipici casi in cui si esce dal contesto di esecuzione che ci si aspetta di avere (un altro caso frequente è quello dei gestori di eventi). Come è avvenuta l'uscita dal contesto di esecuzione?<br>
 				Il metodo <code>brokenCheck</code> richiede l'esecuzione di <code>this.check</code> (ovvero il puntatore alla funzione) dopo 100ms utilizzando la <code>setInterval</code>. <code>setInterval</code> ha un suo contesto di esecuzione separato e sarà in quello che la funzione passata verrà eseguita. Il contesto di esecuzione di <code>setInterval</code> è quello dell'oggetto globale quindi <code>this</code> all'interno di <code>myCheck</code> sarà <code>window</code>.
 			</div>
 		</div>
@@ -257,7 +257,7 @@ myInstance.fixedCheck(); // myProperty è presente e vale 40
 
 		<div class="slide">
 			<h1>Mantenere il contesto di esecuzione - arrow function</h1>
-			<div>Un secondo modo per mantenere il contesto è utilizzare le arrow function, poichè esse si vincolano al contesto di esecuzione dove sono dichiarate.</div>
+			<div>Un terzo modo per mantenere il contesto è utilizzare le arrow function, poichè esse si vincolano al contesto di esecuzione dove sono dichiarate.</div>
 			<pre>
 function myCheck() {
 	if ("myProperty" in this) {
@@ -305,7 +305,7 @@ let myInstance = {
 	}
 };
 
-myInstance.fixedCheck(); // myProperty è presente e vale 40
+myInstance.brokenAgainCheck(); // Questa istanza non ha myProperty
 			</pre>
 			<div>
 				Nell'esempio qui sopra la funzione <code>checkOnGlobalObject</code> è dichiarata come arrow function nel contesto dell'oggetto globale. Essa sarà quindi vincolata a quel contesto e non sarà possibile farla operare in un diverso contesto di esecuzione anche forzandola con il metodo <code>bind()</code>: ciò significa che se si sostituisce la <code>setTimeout</code> con il codice <code>setTimeout(checkOnGlobalObject.bind(this), 100);</code> non si avranno effetti, la arrow function continuerà ad essere collegata al suo contesto di dichiarazione.
