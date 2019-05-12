@@ -149,7 +149,7 @@ let myInstance = {
 myInstance.check(); // myProperty è presente e vale 40
 			</pre>
 			<div>
-				In questo caso viene introdotta una oggetto anonimo che opera da "fornitore" di funzioni. Tramite <code>getCheckFunction</code> si ottiene la funzione di verifica: questa viene utilizzata per assegnare il metodo <code>check</code> dell'oggetto anonimo <code>myInstance</code>.<br>Quando viene invocata il contesto di esecuzione è sempre quello di <code>myInstance</code> e non quello di <code>myFunctionHost</code> ne quello di <code>window</code>.
+				In questo caso viene introdotto un oggetto anonimo che opera da "fornitore" di funzioni. Tramite <code>getCheckFunction</code> si ottiene la funzione di verifica: questa viene utilizzata per assegnare il metodo <code>check</code> dell'oggetto anonimo <code>myInstance</code>.<br>Quando viene invocata il contesto di esecuzione è sempre quello di <code>myInstance</code> e non quello di <code>myFunctionHost</code> ne quello di <code>window</code>.
 			</div>
 		</div>
 
