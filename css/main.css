@@ -73,3 +73,17 @@ td {
 	margin-top: 1rem;
 	border-left: #c88 solid 0.6rem;
 }
+
+.answer {
+	background-color: #8c8;
+	border-radius: 0.3rem;
+	margin-top: -0.7rem;
+	margin-bottom: 1rem;
+	display: none;
+	padding: 0.5rem;
+}
+
+.sticky-code {
+	position: sticky;
+	top: 0.3rem;
+}

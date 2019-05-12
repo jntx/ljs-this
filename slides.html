@@ -21,22 +21,6 @@
 			<div>Il valore di <code>this</code> cambia in accordo con il modo in cui viene invocata la funzione che lo contiene.</div>
 			<div>In linea di massima <code>this</code> fa riferimento alla prima istanza disponibile nel contesto di esecuzione. Se (apparentemente) non mi trovo all'interno di nessuna istanza (ovvero la mia funzione non è trattata come un metodo di un oggetto), <code>this</code> fa riferimento all'<b>oggetto globale</b> (l'oggetto globale, sul browser, è <code>window</code>, mentre su node è <code>global</code>).</div>
 			<div class="warning">ATTENZIONE! Quando lo script viene eseguito in <code>"strict mode"</code> <code>this</code> non fa più riferimento all'oggetto globale ma diventa <code>undefined</code>. Alcuni browser non implementano questo comportamento correttamente ma in strict mode questo comportamento deve essere dato per certo.</div>
-			<!--ul>
-				<li>Una closure è uno blocco di codice con stato privato.</li>
-				<li>L'interno di una closure è visibile solo ai suoi membri interni e non è accessibile dall'esterno.</li>
-				<li>&Egrave; buona prassi dichiarare le variabili della closure utilizzando <code>let</code> (<code>var</code> andrebbe usato solo quando si sa esattamente cosa si vuole ottenere).</li>
-			</ul>
-			<h1>Vantaggi</h1>
-			<ul>
-				<li>Permette di non "sporcare" l'ambiente con le proprie funzioni e variabili.</li>
-				<li>Può emulare facilmente una classe senza dover manipolare i prototipi.</li>
-				<li>Utilizzata per creare istanze, implementa il design pattern della factory.</li>
-			</ul>
-			<h1>Svantaggi</h1>
-			<ul>
-				<li>Poichè privata non è possibile sondarla dalla console del browser e quindi il debugging al suo interno è complesso: occorre provvedere un meccanismo che la espone o utilizzare il debugger.</li>
-				<li>Non esiste ereditarietà.</li>
-			</ul-->
 		</div>
 		<div class="slide">
 			<h1>myCheck</h1>
@@ -321,6 +305,93 @@ myInstance.brokenAgainCheck(); // Questa istanza non ha myProperty
 				<li>Incompatibile con i browser non ES6.</li>
 				<li>&Egrave; necessario che il contesto di dichiarazione sia lo stesso che si desidera per l'esecuzione.</li>
 			</ul>
+		</div>
+
+		<div class="slide">
+			<h1>Un quiz per ricapitolare il tutto</h1>
+			<div></div>
+			<pre class="sticky-code">
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck,
+	otherCheck : () => this.check()
+};
+
+let anotherInstance = {
+	myProperty : 42
+};
+			</pre>
+			<ul id="quest">
+				<li>
+					<pre>
+// CHIAMATA 1
+myInstance.check();
+					</pre>
+					<div class="answer">myProperty è presente e vale 40</div>
+				</li>
+				<li>
+					<pre>
+// CHIAMATA 2
+myInstance.otherCheck();
+					</pre>
+					<div class="answer">ERR: this.check is not a function</div>
+				</li>
+				<li>
+					<pre>
+// CHIAMATA 3
+myInstance.anotherCheck = () => this.check();
+myInstance.anotherCheck();
+					</pre>
+					<div class="answer">ERR: this.check is not a function</div>
+				</li>
+				<li>
+					<pre>
+// CHIAMATA 4
+myInstance.anotherFinalCheck = function() { this.check() };
+myInstance.anotherFinalCheck();
+					</pre>
+					<div class="answer">myProperty è presente e vale 40</div>
+				</li>
+				<li>
+					<pre>
+// CHIAMATA 5
+myInstance.anotherFinalCheckReally = (() => this.check() }).bind(myInstance);
+myInstance.anotherFinalCheckReally();
+					</pre>
+					<div class="answer">ERR: this.check is not a function</div>
+				</li>
+				<li>
+					<pre>
+// CHIAMATA 6
+(myCheck.bind(anotherInstance))();
+					</pre>
+					<div class="answer">myProperty è presente e vale 42</div>
+				</li>
+				<li>
+					<pre>
+// CHIAMATA 7
+document.body.addEventListener("click", myCheck.bind(anotherInstance))
+					</pre>
+					<div class="answer"> [ad ogni click] myProperty è presente e vale 42</div>
+				</li>
+			</ul>
+			<script>
+				document.querySelector("#quest").addEventListener("click", function(e) {
+					if (e.target.tagName != "LI") {
+						return;
+					}
+
+					e.target.querySelector(".answer").style.display = "block";
+				}, true);
+			</script>
 		</div>
 
 		<div class="slide last-slide">
