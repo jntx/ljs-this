@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>this in JavaScript</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" type="text/css" href="css/slides.css">
+	<script src="js/slides.js"></script>
+</head>
+<body>
+	<div class="slides">
+		<div class="slide first-slide">
+			<h1 class="line1">Chi è</h1>
+			<h1 class="line2">this</h1>
+			<h1 class="line3">?!?</h1>
+		</div>
+		<div class="slide">
+			<h1>Tecnicamente</h1>
+			<div>Il valore di <code>this</code> cambia in accordo con il modo in cui viene invocata la funzione che lo contiene.</div>
+			<div>In linea di massima <code>this</code> fa riferimento alla prima istanza disponibile nel contesto di esecuzione. Se (apparentemente) non mi trovo all'interno di nessuna istanza (ovvero la mia funzione non è trattata come un metodo di un oggetto), <code>this</code> fa riferimento all'<b>oggetto globale</b> (l'oggetto globale, sul browser, è <code>window</code>, mentre su node è <code>global</code>).</div>
+			<div class="warning">ATTENZIONE! Quando lo script viene eseguito in <code>"strict mode"</code> <code>this</code> non fa più riferimento all'oggetto globale ma diventa <code>undefined</code>. Alcuni browser non implementano questo comportamento correttamente ma in strict mode questo comportamento deve essere dato per certo.</div>
+			<!--ul>
+				<li>Una closure è uno blocco di codice con stato privato.</li>
+				<li>L'interno di una closure è visibile solo ai suoi membri interni e non è accessibile dall'esterno.</li>
+				<li>&Egrave; buona prassi dichiarare le variabili della closure utilizzando <code>let</code> (<code>var</code> andrebbe usato solo quando si sa esattamente cosa si vuole ottenere).</li>
+			</ul>
+			<h1>Vantaggi</h1>
+			<ul>
+				<li>Permette di non "sporcare" l'ambiente con le proprie funzioni e variabili.</li>
+				<li>Può emulare facilmente una classe senza dover manipolare i prototipi.</li>
+				<li>Utilizzata per creare istanze, implementa il design pattern della factory.</li>
+			</ul>
+			<h1>Svantaggi</h1>
+			<ul>
+				<li>Poichè privata non è possibile sondarla dalla console del browser e quindi il debugging al suo interno è complesso: occorre provvedere un meccanismo che la espone o utilizzare il debugger.</li>
+				<li>Non esiste ereditarietà.</li>
+			</ul-->
+		</div>
+		<div class="slide">
+			<h1>myCheck</h1>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+			</pre>
+			<div>
+				La funzione <code>myCheck</code> verifica se su <code>this</code> è presente la proprietà <code>myProperty</code> e stampa un messaggio di conferma e il valore, altrimenti un messaggio di errore.
+			</div>
+		</div>
+		<div class="slide">
+			<h1>Invocazione nel contesto globale</h1>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+myCheck(); // Questa istanza non ha myProperty
+			</pre>
+			<div>
+				La funzione <code>myCheck</code> emette il messaggio di errore, perchè?<br>Il motivo è che l'invocazione della funzione avviene nel contesto globale ovvero viene eseguita come membro di <code>window</code> (sul browser, <code>global</code> se su node).
+			</div>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+var myProperty = 39;
+myCheck(); // myProperty è presente e vale 39
+			</pre>
+			<div>
+				La funzione <code>myCheck</code> stampa il messaggio di conferma e il valore, perchè?<br>Il motivo è l'aver aggiunto al contesto globale una variabile (una proprietà) <code>myProperty</code>.
+			</div>
+			<div class="warning">ATTENZIONE! L'aggiunta di variabili/proprietà al contesto globale avviene esclusivamente attraverso l'uso di <code>var</code>; se si fosse utilizzato <code>let</code> o <code>const</code> la variabile non sarebbe stata aggiunta al contesto globale e si sarebbe ottenuto l'errore.</div>
+		</div>
+
+		<div class="slide">
+			<h1>Invocazione in un contesto locale</h1>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+var myProperty = 39;
+myCheck(); // myProperty è presente e vale 39
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck
+};
+
+myInstance.check(); // myProperty è presente e vale 40
+			</pre>
+			<div>
+				La funzione <code>myCheck</code> viene assegnata al metodo <code>check</code> dell'oggetto anonimo memorizzato in <code>myInstance</code>. Nel momento in cui viene invocata l'interprete cerca di risolvere <code>this</code> ricercando l'istanza del contesto di esecuzione... che ora non è più <code>window</code> ma l'oggetto anonimo.
+			</div>
+			<pre>
+let myBrokenInstance = {
+	check : myCheck
+};
+
+myBrokenInstance.check(); // Questa istanza non ha myProperty
+			</pre>
+			<div>
+				In questo caso l'oggetto anonimo <code>myBrokenInstance</code> non ha una proprietà <code>myProperty</code> e quindi si ha il messaggio di errore. Ciò significa che nella ricerca del contesto di esecuzione non c'è una ricerca a ritroso nella gerarchia di appartenenza dei contesti ma ci si ferma al primo.
+			</div>
+		</div>
+
+		<div class="slide">
+			<h1>Complicazioni</h1>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myFunctionHost = {
+	myProperty : 41,
+	getCheckFunction : function () {
+		return myCheck;
+	}
+};
+
+let myInstance = {
+	myProperty : 40,
+	check : myFunctionHost.getCheckFunction()
+};
+
+myInstance.check(); // myProperty è presente e vale 40
+			</pre>
+			<div>
+				In questo caso viene introdotta una oggetto anonimo che opera da "fornitore" di funzioni. Tramite <code>getCheckFunction</code> si ottiene la funzione di verifica: questa viene utilizzata per assegnare il metodo <code>check</code> dell'oggetto anonimo <code>myInstance</code>.<br>Quando viene invocata il contesto di esecuzione è sempre quello di <code>myInstance</code> e non quello di <code>myFunctionHost</code> ne quello di <code>window</code>.
+			</div>
+		</div>
+
+		<div class="slide">
+			<h1>Uscita dal contesto di esecuzione</h1>
+			<div>Vediamo un caso in cui si ha l'uscita dal contesto di esecuzione.</div>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck,
+	brokenCheck : function() {
+		setTimeout(this.check, 100);
+	}
+};
+
+myInstance.check(); // myProperty è presente e vale 40
+myInstance.brokenCheck(); // Questa istanza non ha myProperty
+			</pre>
+			<div>
+				Questo è un dei tipici casi in cui si esce dal contesto di esecuzione che ci si aspetta di avere (un altro caso frequente è quello dei gestori di eventi). Come è avvenuta l'uscita dal contesto di esecuzione?<br>
+				Il metodo <code>brokenCheck</code> richiede l'esecuzione di <code>this.check</code> (ovvero il puntatore alla funzione) dopo 100ms utilizzando la <code>setInterval</code>. <code>setInterval</code> ha un suo contesto di esecuzione separato e sarà in quello che la funzione passata verrà eseguita. Il contesto di esecuzione di <code>setInterval</code> è quello dell'oggetto globale quindi <code>this</code> all'interno di <code>myCheck</code> sarà <code>window</code>.
+			</div>
+		</div>
+
+		<div class="slide">
+			<h1>Mantenere il contesto di esecuzione - <code>that = this</code></h1>
+			<div>Un modo per mantenere il contesto è impostare una closure dove mantenere un collegamento con il contesto voluto.</div>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck,
+	fixedCheck : function() {
+		let that = this;
+		setTimeout(function() { that.check(); }, 100);
+	}
+};
+
+myInstance.fixedCheck(); // myProperty è presente e vale 40
+			</pre>
+			<div>
+				In <code>fixedCheck</code> viene impostata una closure dove la variabile <code>that</code> fa da "ponte" verso la closure della funzione anonima passata alla <code>setTimeout</code>.
+			</div>
+			<h1>Vantaggi</h1>
+			<ul>
+				<li>Compatibile con tutti i browser, inclusi quelli più vecchi.</li>
+			</ul>
+			<h1>Svantaggi</h1>
+			<ul>
+				<li>Codice poco leggibile e di difficile manutenzione.</li>
+			</ul>
+		</div>
+
+		<div class="slide">
+			<h1>Mantenere il contesto di esecuzione - <code>.bind()</code></h1>
+			<div>Un secondo modo per mantenere il contesto è utilizzare il metodo <code>bind()</code> per vincolare il contesto di esecuzione.</div>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck,
+	fixedCheck : function() {
+		setTimeout(this.check.bind(this), 100);
+	}
+};
+
+myInstance.fixedCheck(); // myProperty è presente e vale 40
+			</pre>
+			<div>
+				In questo caso vincoliamo il contesto di esecuzione tramite il metodo <code>bind()</code>. <code>bind()</code> ha come primo parametro di ingresso il contesto che si desidera avere e restituisce una nuova funzione. In un certo senso implementa al suo interno il meccanismo del <code>that = this</code> in maniera invisibile dallo sviluppatore.
+			</div>
+			<h1>Vantaggi</h1>
+			<ul>
+				<li>Compatibile con i browser ES5.</li>
+				<li>Codice pulito e leggibile, facile da manutenere.</li>
+				<li>Molto flessibile nell'uso.</li>
+			</ul>
+			<h1>Svantaggi</h1>
+			<ul>
+				<li>Incompatibile con i browser non ES5 (es. MSIE 9 e precedenti)</li>
+			</ul>
+		</div>
+
+		<div class="slide">
+			<h1>Mantenere il contesto di esecuzione - arrow function</h1>
+			<div>Un secondo modo per mantenere il contesto è utilizzare le arrow function, poichè esse si vincolano al contesto di esecuzione dove sono dichiarate.</div>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck,
+	fixedCheck : function() {
+		setTimeout(() => this.check(), 100);
+	}
+};
+
+myInstance.fixedCheck(); // myProperty è presente e vale 40
+			</pre>
+			<div>
+				Apparentemente il meccanismo della arrow function è simile a quello di <code>bind()</code>. In realtà la arrow function ha come contesto di esecuzione <code>myInstance</code> perchè è in quel contesto che è stata dichiarata. Se fosse stata dichiarata altrove (in un'altra istanza) essa sarebbe stata sempre e comunque vincolata al contesto di esecuzione di dichiarazione.
+			</div>
+			<pre>
+function myCheck() {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let checkOnGlobalObject = () => {
+	if ("myProperty" in this) {
+		console.log("myProperty è presente e vale " + this.myProperty);
+	} else {
+		console.error("Questa istanza non ha myProperty");
+	}
+}
+
+let myInstance = {
+	myProperty : 40,
+	check : myCheck,
+	brokenAgainCheck : function() {
+		setTimeout(checkOnGlobalObject, 100);
+	}
+};
+
+myInstance.fixedCheck(); // myProperty è presente e vale 40
+			</pre>
+			<div>
+				Nell'esempio qui sopra la funzione <code>checkOnGlobalObject</code> è dichiarata come arrow function nel contesto dell'oggetto globale. Essa sarà quindi vincolata a quel contesto e non sarà possibile farla operare in un diverso contesto di esecuzione anche forzandola con il metodo <code>bind()</code>: ciò significa che se si sostituisce la <code>setTimeout</code> con il codice <code>setTimeout(checkOnGlobalObject.bind(this), 100);</code> non si avranno effetti, la arrow function continuerà ad essere collegata al suo contesto di dichiarazione.
+			</div>
+			<h1>Vantaggi</h1>
+			<ul>
+				<li>Compatibile con i browser ES6.</li>
+				<li>Codice facile da manutenere e molto compatto.</li>
+				<li>Il contesto di esecuzione è certo e non modificabile.</li>
+			</ul>
+			<h1>Svantaggi</h1>
+			<ul>
+				<li>Incompatibile con i browser non ES6.</li>
+				<li>&Egrave; necessario che il contesto di dichiarazione sia lo stesso che si desidera per l'esecuzione.</li>
+			</ul>
+		</div>
+
+		<div class="slide last-slide">
+			<h1>Queste slides:</h1>
+			<h2>https://github.com/jntx/ljs-this</h2>
+		</div>
+	</div>
+</body>
+</html>
